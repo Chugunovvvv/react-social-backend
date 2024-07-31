@@ -23,9 +23,9 @@ const UserController = {
       // 3. хэшируем пароль и создаем рандомную картинку
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      const png = Jdenticon.toPng(name, 200);
-      const avatarName = `${name} ${Date.now()}.png`;
-      const avatarPath = path.join(__dirname, "../uploads", avatarName);
+      const png = Jdenticon.toPng(`${name}${Date.now()}`, 200);
+      const avatarName = `${name}${Date.now()}.png`;
+      const avatarPath = path.join(__dirname, "/../uploads", avatarName);
       fs.writeFileSync(avatarPath, png);
       //4. Отправляем пользователя в бд
       const user = await prisma.user.create({
@@ -33,7 +33,7 @@ const UserController = {
           email,
           password: hashedPassword,
           name,
-          avatarUrl: `/uploads/${avatarPath}`,
+          avatarUrl: `/uploads/${avatarName}`,
         },
       });
       res.json(user);
@@ -141,9 +141,11 @@ const UserController = {
   current: async (req, res) => {
     try {
       const user = await prisma.user.findUnique({
+        // сверяем айдишник с бд
         where: {
           id: req.user.userId,
         },
+        // это пздц я до сих пор не понял
         include: {
           followers: {
             include: {
